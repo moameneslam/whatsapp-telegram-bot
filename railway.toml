@@ -1,7 +1,8 @@
-your-repo/
-   ├── Dockerfile          ← Must be here
-   ├── railway.toml        ← Must be here
-   ├── package.json
-   ├── main.js
-   ├── .env
-   └── .dockerignore
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "npm start"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10
