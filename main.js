@@ -56,6 +56,19 @@ client.on('ready', () => {
 
 client.on('message', async msg => {
     try {
+        // Get chat info
+        const chat = await msg.getChat();
+        
+        // Log chat name and number to help you identify chats
+        console.log(`Message from: ${chat.name} (${msg.from})`);
+        
+        // FILTER: Only forward from Moamen Eslam
+        // Filter by phone number (more reliable than name)
+        if (msg.from !== '201028620963@c.us') {
+            console.log('Skipping message - not from target contact');
+            return;
+        }
+        
         if (msg.hasMedia) {
             const media = await msg.downloadMedia();
             const buffer = Buffer.from(media.data, 'base64');
@@ -63,6 +76,7 @@ client.on('message', async msg => {
             const formData = new FormData();
             formData.append('chat_id', TELEGRAM_CHAT_ID);
             formData.append('document', buffer, { filename: `${msg.timestamp}.${media.mimetype.split('/')[1]}` });
+            formData.append('caption', `From: ${chat.name}`);
 
             await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument`, formData, {
                 headers: formData.getHeaders(),
@@ -72,7 +86,7 @@ client.on('message', async msg => {
         } else {
             await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                 chat_id: TELEGRAM_CHAT_ID,
-                text: msg.body || '(empty message)',
+                text: `From: ${chat.name}\n\n${msg.body || '(empty message)'}`,
             });
             console.log('💬 Message forwarded to Telegram');
         }
