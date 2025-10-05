@@ -1,0 +1,7 @@
+your-repo/
+   ├── Dockerfile          ← Must be here
+   ├── railway.toml        ← Must be here
+   ├── package.json
+   ├── main.js
+   ├── .env
+   └── .dockerignore
