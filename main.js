@@ -11,7 +11,19 @@ const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
 const client = new Client({
-    authStrategy: new LocalAuth({ dataPath: './sessions' })
+    authStrategy: new LocalAuth({ dataPath: './sessions' }),
+    puppeteer: {
+        headless: true,
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--disable-gpu'
+        ]
+    }
 });
 
 client.on('qr', qr => {
@@ -51,4 +63,3 @@ client.on('message', async msg => {
 });
 
 client.initialize();
-
