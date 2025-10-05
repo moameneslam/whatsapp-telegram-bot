@@ -1,6 +1,7 @@
 import pkg from 'whatsapp-web.js';
 const { Client, LocalAuth } = pkg;
 import qrcode from 'qrcode-terminal';
+import QRCode from 'qrcode';
 import fs from 'fs';
 import axios from 'axios';
 import FormData from 'form-data';
@@ -26,9 +27,27 @@ const client = new Client({
     }
 });
 
-client.on('qr', qr => {
+client.on('qr', async qr => {
     console.log('Scan this QR to log in to WhatsApp:');
     qrcode.generate(qr, { small: true });
+    
+    try {
+        // Generate QR code as image and send to Telegram
+        const qrImage = await QRCode.toBuffer(qr, { width: 500 });
+        
+        const formData = new FormData();
+        formData.append('chat_id', TELEGRAM_CHAT_ID);
+        formData.append('photo', qrImage, { filename: 'whatsapp-qr.png' });
+        formData.append('caption', '📱 Scan this QR code with WhatsApp to connect the bot');
+
+        await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, formData, {
+            headers: formData.getHeaders(),
+        });
+        
+        console.log('✅ QR code sent to Telegram');
+    } catch (err) {
+        console.error('Error sending QR to Telegram:', err.message);
+    }
 });
 
 client.on('ready', () => {
